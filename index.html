@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fitness Tracker</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+    --bg:#121212;
+    --card:#1f1f1f;
+    --accent:#22C55E;
+    --accent-hover:#16a34a;
+    --text:#fff;
+}
+
+.light{
+    --bg:#f4f6f8;
+    --card:#fff;
+    --accent:#16a34a;
+    --accent-hover:#22C55E;
+    --text:#000;
+}
+body.light input [type='number']{
+    outline: none;
+    background: black;
+    color: white;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);transition:0.3s;}
+
+/* TOPBAR */
+.topbar{
+    position:fixed; top:0; left:0; right:0; height:60px;
+    background:var(--card);
+    display:flex; justify-content:space-between; align-items:center;
+    padding:0 20px; font-family:'Orbitron',sans-serif;
+    z-index:1000; box-shadow:0 3px 8px rgba(0,0,0,0.4);
+}
+
+.toggle{
+    cursor:pointer;
+    background:var(--accent);
+    border:none; padding:6px 12px; border-radius:6px;
+    font-weight:bold; color:#000;
+    transition:0.3s;
+}
+.toggle:hover{background:var(--accent-hover);}
+
+/* SIDEBAR */
+.sidebar{
+    position:fixed; top:70px; left:0;
+    width:230px; height:calc(100vh-80px);
+    background:var(--card); border-radius:10px; padding:10px;
+    display:flex; flex-direction:column;
+}
+
+.sidebar button{
+    margin:5px 0; padding:10px; font-size:20px;
+    background:none; border:none; color:var(--text); border-radius:8px;
+    cursor:pointer; text-align:left; transition:0.3s;
+}
+.sidebar button:hover{
+    background:var(--accent-hover);
+    transform:translateX(5px);
+}
+
+/* MAIN CONTENT */
+.main{
+    margin-left:260px; margin-top:80px; padding:20px;
+}
+
+/* HEADER CARD */
+.header-card{
+    background:var(--accent);
+    color:#fff; border-radius:12px;
+    padding:20px; margin-bottom:20px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.3);
+    transition:0.3s;
+}
+.header-card:hover{
+    transform:translateY(-5px);
+}
+
+/* TABS */
+.tabs{
+    display:flex; gap:10px; margin-bottom:20px;
+}
+.tabs button{
+    padding:10px 20px; border:none; border-radius:8px;
+    cursor:pointer; background:#333; color:#fff; transition:0.3s;
+}
+.tabs button.active, .tabs button:hover{
+    background:var(--accent); color:#000;
+}
+
+/* STAT CARDS */
+.card{
+    background:var(--card); border-radius:12px;
+    padding:20px; margin-bottom:20px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.3);
+    transition:0.3s;
+}
+.card:hover{transform:translateY(-5px);}
+
+/* PROGRESS */
+.stat{margin-bottom:20px;}
+.stat-head{display:flex; justify-content:space-between; margin-bottom:6px;}
+.progress{background:#444; height:14px; border-radius:10px; overflow:hidden;}
+.fill{height:100%; width:0%; background:var(--accent); transition:0.3s;}
+.add{margin-top:8px;padding:6px 12px;border:none;border-radius:6px;background:var(--accent);cursor:pointer;font-weight:bold;transition:0.3s;}
+.add:hover{background:var(--accent-hover);}
+
+/* RECOMMENDATIONS */
+.rec-grid{display:flex; gap:15px; flex-wrap:wrap;}
+.rec{
+    background:#00000022; padding:15px; width:220px;
+    border-radius:10px; transition:0.3s;
+}
+.rec:hover{
+    transform:translateY(-5px);
+    box-shadow:0 6px 20px rgba(0,0,0,0.4);
+}
+.rec span{font-size:32px;}
+.rec h3{color:var(--accent);margin:8px 0;}
+
+/* FINISH MESSAGE */
+.finish{
+    position:fixed; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    background:var(--accent); color:#000;
+    padding:30px 50px;
+    border-radius:15px;
+    font-size:28px;
+    font-weight:bold;
+    box-shadow:0 8px 25px rgba(0,0,0,0.5);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.6s, transform 0.6s;
+}
+.finish.show{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1.1);
+}
+
+/* TARGET SETTINGS */
+.target-set{
+    margin:15px 0;
+}
+.target-set input{
+    width:80px; padding:5px; border-radius:6px; border:none; margin-left:5px;
+}
+
+/* RESPONSIVE */
+@media(max-width:800px){
+    .sidebar{display:none;}
+    .main{margin-left:0;}
+    .tabs{flex-wrap:wrap;}
+}
+input [type='number']{
+    outline: none;
+    background: white;
+    color: white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+    <h2>🏋️ Fitness Tracker</h2>
+    <button class="toggle" onclick="toggleTheme()">🌙 / ☀️</button>
+</div>
+
+<div class="sidebar">
+    <button onclick="showTab('steps')">👟 Steps</button>
+    <button onclick="showTab('reps')">💪 Reps</button>
+    <button onclick="showTab('calories')">🔥 Calories</button>
+</div>
+
+<div class="main">
+
+    <div class="header-card">
+        <h1>👋 Hi, User</h1>
+        <p>Stay active and healthy today!</p>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="steps">👟 Steps</button>
+        <button class="tab-btn" data-tab="reps">💪 Reps</button>
+        <button class="tab-btn" data-tab="calories">🔥 Calories</button>
+    </div>
+
+    <!-- TAB CONTENT -->
+
+    <!-- Steps Tab -->
+    <div class="tab-content" id="steps-tab">
+        <div class="card">
+            <h2>👟 Steps</h2>
+            <div class="target-set">Set Target: <input type="number" id="stepsTarget" value="10000"></div>
+            <div class="stat">
+                <div class="stat-head"><span>Steps</span><span id="sText"></span></div>
+                <div class="progress"><div class="fill" id="sBar"></div></div>
+                <button class="add" onclick="addSteps()">+500 Steps</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reps Tab -->
+    <div class="tab-content" id="reps-tab" style="display:none;">
+        <div class="card">
+            <h2>💪 Reps</h2>
+            <div class="target-set">Set Target: <input type="number" id="repsTarget" value="100"></div>
+            <div class="stat">
+                <div class="stat-head"><span>Reps</span><span id="rText"></span></div>
+                <div class="progress"><div class="fill" id="rBar"></div></div>
+                <button class="add" onclick="addReps()">+10 Reps</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calories Tab -->
+    <div class="tab-content" id="calories-tab" style="display:none;">
+        <div class="card">
+            <h2>🔥 Calories</h2>
+            <div class="target-set">Set Target: <input type="number" id="calTarget" value="500"></div>
+            <div class="stat">
+                <div class="stat-head"><span>Calories</span><span id="cText"></span></div>
+                <div class="progress"><div class="fill" id="cBar"></div></div>
+                <button class="add" onclick="addCalories()">+50 kcal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="card">
+        <h2>💡 Recommendations</h2>
+        <div class="rec-grid">
+            <div class="rec"><span>👟</span><h3>Walk</h3><p>Aim for your step target</p></div>
+            <div class="rec"><span>💪</span><h3>Strength</h3><p>Do your reps</p></div>
+            <div class="rec"><span>🔥</span><h3>Calories</h3><p>Burn your calories</p></div>
+            <div class="rec"><span>💧</span><h3>Hydrate</h3><p>Drink water regularly</p></div>
+        </div>
+    </div>
+    <button class="add" onclick="resetProgress()">🔄 Reset Progress</button>
+
+</div>
+
+<!-- FINISH MESSAGE -->
+<div class="finish" id="finishMsg">🎉 You Did It!</div>
+
+<script>
+    function resetProgress(){
+    steps = 0;
+    reps = 0;
+    cal = 0;
+    localStorage.steps = 0;
+    localStorage.reps = 0;
+    localStorage.cal = 0;
+    update(); // refresh progress bars and text
+}
+
+// INITIAL DATA
+let steps=0,reps=0,cal=0;
+
+// LOAD TARGETS
+let maxS = localStorage.stepsTarget ? +localStorage.stepsTarget : 10000;
+let maxR = localStorage.repsTarget ? +localStorage.repsTarget : 100;
+let maxC = localStorage.calTarget ? +localStorage.calTarget : 500;
+
+// DAILY RESET
+const today=new Date().toDateString();
+if(localStorage.date!==today){localStorage.clear(); localStorage.date=today;}
+
+// LOAD PROGRESS
+steps=+localStorage.steps||0;
+reps=+localStorage.reps||0;
+cal=+localStorage.cal||0;
+update();
+
+// PROGRESS UPDATE
+function update(){
+    // get targets from input
+    maxS = +document.getElementById("stepsTarget").value;
+    maxR = +document.getElementById("repsTarget").value;
+    maxC = +document.getElementById("calTarget").value;
+
+    document.getElementById("sText").innerText=`${steps} / ${maxS}`;
+    document.getElementById("rText").innerText=`${reps} / ${maxR}`;
+    document.getElementById("cText").innerText=`${cal} / ${maxC}`;
+    document.getElementById("sBar").style.width=(steps/maxS)*100+"%";
+    document.getElementById("rBar").style.width=(reps/maxR)*100+"%";
+    document.getElementById("cBar").style.width=(cal/maxC)*100+"%";
+
+    localStorage.steps=steps; localStorage.reps=reps; localStorage.cal=cal;
+    localStorage.stepsTarget=maxS; localStorage.repsTarget=maxR; localStorage.calTarget=maxC;
+
+    checkFinish();
+}
+
+// ADD FUNCTIONS
+function addSteps(){steps=Math.min(steps+500,maxS);update()}
+function addReps(){reps=Math.min(reps+10,maxR);update()}
+function addCalories(){cal=Math.min(cal+50,maxC);update()}
+
+// THEME
+function toggleTheme(){document.body.classList.toggle("light")}
+
+// TABS
+const tabBtns=document.querySelectorAll(".tab-btn");
+function showTab(tab){
+    document.getElementById("steps-tab").style.display="none";
+    document.getElementById("reps-tab").style.display="none";
+    document.getElementById("calories-tab").style.display="none";
+    document.getElementById(tab+"-tab").style.display="block";
+    tabBtns.forEach(btn=>btn.classList.remove("active"));
+    document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add("active");
+}
+
+// FINISH EFFECT
+function checkFinish(){
+    if(steps>=maxS && reps>=maxR && cal>=maxC){
+        const msg=document.getElementById("finishMsg");
+        msg.classList.add("show");
+        setTimeout(()=>{msg.classList.remove("show")},5000);
+        launchConfetti();
+    }
+}
+
+// SIMPLE CONFETTI
+function launchConfetti(){
+    for(let i=0;i<50;i++){
+        let conf=document.createElement("div");
+        conf.style.position="fixed";
+        conf.style.top="0px";
+        conf.style.left=Math.random()*window.innerWidth+"px";
+        conf.style.width="10px";
+        conf.style.height="10px";
+        conf.style.background=`hsl(${Math.random()*360},100%,50%)`;
+        conf.style.opacity=0.8;
+        conf.style.borderRadius="50%";
+        conf.style.pointerEvents="none";
+        conf.style.transition="all 3s linear";
+        document.body.appendChild(conf);
+        setTimeout(()=>{
+            conf.style.top=window.innerHeight + "px";
+            conf.style.transform=`rotate(${Math.random()*360}deg)`;
+            conf.style.opacity=0;
+        },50);
+        setTimeout(()=>conf.remove(),3000);
+    }
+}
+
+// UPDATE WHEN TARGETS CHANGED
+document.getElementById("stepsTarget").addEventListener("input", update);
+document.getElementById("repsTarget").addEventListener("input", update);
+document.getElementById("calTarget").addEventListener("input", update);
+
+// Load theme on page load
+document.addEventListener("DOMContentLoaded", () => {
+    const theme = localStorage.getItem("theme") || "dark";
+    if(theme === "light") document.body.classList.add("light");
+});
+
+// Toggle Theme and Save
+function toggleTheme(){
+    document.body.classList.toggle("light");
+    if(document.body.classList.contains("light")){
+        localStorage.setItem("theme","light");
+    } else {
+        localStorage.setItem("theme","dark");
+    }
+}
+
+
+</script>
+</body>
+</html>
